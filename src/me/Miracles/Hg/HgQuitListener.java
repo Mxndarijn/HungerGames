@@ -8,8 +8,13 @@ public class HgQuitListener implements Listener {
 	
 	@EventHandler
 	public void Join(PlayerQuitEvent e) {
-		e.setQuitMessage("§e" + e.getPlayer().getName() + " has left!");
+		if(HgMain.PlayersInGame == 24) {
+			e.setQuitMessage("");
+			return;
+		}
 		HgMain.PlayersInGame--;
+		e.setQuitMessage("§e" + e.getPlayer().getName() + " left! (" + HgMain.PlayersInGame + "/" + HgMain.GetInt("MaxPlayers") + ")");
+		
 		
 	}
 
