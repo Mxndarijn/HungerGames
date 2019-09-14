@@ -67,6 +67,15 @@ public class HgKits implements CommandExecutor, Listener {
 	@EventHandler
 	public void InventoryClick(InventoryClickEvent e) {
 		Player player = (Player) e.getWhoClicked();
+		if (e.getView().getTopInventory().getTitle().equals("§eKits List")) {
+			e.setCancelled(true);
+			int slot = e.getSlot();
+			player.sendMessage(slot + " ");
+			if(e.getCurrentItem().getType() != Material.AIR) {
+				int id = e.getSlot() +1;
+				MainKitInv(id, player);
+			}
+		}
 		if (e.getView().getTopInventory().getTitle().equals("§eKits§f")) {
 			e.setCancelled(true);
 			int slot = e.getSlot();
@@ -78,18 +87,22 @@ public class HgKits implements CommandExecutor, Listener {
 			}
 			if(slot == 13) {
 				Inventory inv = Bukkit.getServer().createInventory(null, 27, "§eKits List");
-				for(int i = 0; i <= HgMain.GetInt("KitsID"); i++) {
-					ItemStack Item = HgMain.Main.getConfig().getItemStack(i + ".SelectorItem");
-					String name = HgMain.GetString(i + ".Name");
-					String des = HgMain.GetString(i + ".KitDescription");
-					ItemMeta im = Item.getItemMeta();
-					im.setDisplayName(name);
+				for(int i = 1; i <= HgMain.GetInt("KitsID"); i++) {
+					Bukkit.broadcastMessage(i + "");
+					ItemStack Item = HgMain.Main.FileKitsConfig.getItemStack(i + ".SelectorItem");
+					String name = HgMain.Main.FileKitsConfig.getString(i + ".Name");
+					String des = HgMain.Main.FileKitsConfig.getString(i + ".KitDescription");
+					ItemStack is = new ItemStack(Item.getType());
+					ItemMeta im = is.getItemMeta();
+					im.setDisplayName("§f" + name);
 					ArrayList<String> lore = new ArrayList<String>();
 					lore.add(des);
+					im.setLore(lore);
 					Item.setItemMeta(im);
 					inv.setItem(i -1, Item);
 					
 				}
+				player.openInventory(inv);
 				
 				
 			}
@@ -106,7 +119,7 @@ public class HgKits implements CommandExecutor, Listener {
 				}
 				e.setCancelled(true);
 				e.getInventory().setItem(5, e.getCursor());
-				e.getCursor().setType(Material.AIR);
+				e.setCursor(new ItemStack(Material.AIR));
 				String[] id1 = e.getClickedInventory().getName().split("ID: ");
 				int id = Integer.parseInt(id1[1]);
 				HgMain.Main.FileKitsConfig.set(id + ".SelectorItem", e.getInventory().getItem(5));
@@ -415,7 +428,11 @@ public class HgKits implements CommandExecutor, Listener {
 			HgMain.SetConfig("KitsID", id);
 			HgMain.Main.FileKitsConfig.set(id + ".Name", message);
 			HgMain.Main.FileKitsConfig.set(id + ".KitDescription", "None");
-			HgMain.Main.FileKitsConfig.set(id + ".SelectorItem", new ItemStack(Material.BARRIER));
+			ItemStack is = new ItemStack(Material.BARRIER);
+			ItemMeta im = is.getItemMeta();
+			im.setDisplayName("Selector Item");
+			is.setItemMeta(im);
+			HgMain.Main.FileKitsConfig.set(id + ".SelectorItem", is);
 			HgMain.Main.FileKitsConfig.set(id + ".Prices.Level1", 1);
 			HgMain.Main.FileKitsConfig.set(id + ".Prices.Level2", 2);
 			HgMain.Main.FileKitsConfig.set(id + ".Prices.Level3", 3);
@@ -538,12 +555,19 @@ public class HgKits implements CommandExecutor, Listener {
 		im1.setDisplayName("§7Selector Item");
 		is1.setItemMeta(im1);
 		inv.setItem(5, is1);
-		
-		ItemStack Item = HgMain.Main.getConfig().getItemStack(id + ".SelectorItem");
-		if(Item != new ItemStack(Material.BARRIER)) {
-			Bukkit.broadcastMessage("1");
-			inv.setItem(5, Item);
+		ItemStack Item = HgMain.Main.FileKitsConfig.getItemStack(id + ".SelectorItem");
+		ItemStack is = new ItemStack(Material.BARRIER);
+		ItemMeta im = is.getItemMeta();
+		im.setDisplayName("Selector Item");
+		is.setItemMeta(im);
+		if(Item == is) { 
+			p.openInventory(inv); 
+			return;
 		}
+		im = Item.getItemMeta();
+		im.setDisplayName("§7Selector Item");
+		Item.setItemMeta(im);
+		inv.setItem(5, Item);
 		
 		p.openInventory(inv);
 	}
