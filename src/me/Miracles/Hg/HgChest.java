@@ -29,6 +29,7 @@ public class HgChest implements Listener {
 	public void ChestOpen(PlayerInteractEvent e) {
 		if(e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			if(e.getClickedBlock().getType() == Material.CHEST) {
+				PlayerLatestChest.put(e.getPlayer(), e.getClickedBlock().getLocation());
 				if(!LocChest.containsKey(e.getClickedBlock().getLocation())) {
 					Location loc = e.getClickedBlock().getLocation();
 					Entity en = loc.getWorld().spawnEntity(loc.add(0.5, -1.2, 0.5), EntityType.ARMOR_STAND);

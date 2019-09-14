@@ -2,6 +2,8 @@ package me.Miracles.Hg;
 
 import java.util.HashMap;
 
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -20,45 +22,49 @@ public class HgDeath implements Listener {
 	
 	@EventHandler
 	public void PlayerDeath(PlayerDeathEvent e) {
-		if(e.getEntityType() == EntityType.PLAYER) {
-			
-			Player p = (Player) e.getEntity();
-			DamageCause cause = LastDamage.get(p);
-			if(cause == DamageCause.CONTACT && Damager.get(p) != null) {
-				Player damager = Damager.get(p);
-				e.setDeathMessage("§7" + p.getName() + " was killed by " + damager.getName() + "!");
-				return;
-			}
-			if(cause == DamageCause.CONTACT && DamagerEn.get(p) != null) {
-				Entity damager = DamagerEn.get(p);
-				e.setDeathMessage("§7" + p.getName() + " was killed by " + damager.getType() + "!");
-				return;
-			}
-			if(cause == DamageCause.FALL) {
-				e.setDeathMessage("§7" + p.getName() + " thought he could fly!");
-				return;
-			}
-			if(cause == DamageCause.BLOCK_EXPLOSION) {
-				e.setDeathMessage("§7" + p.getName() + " was killed by an explosion!");
-				return;
-			}
-			p.spigot().respawn();
+		Player p = (Player) e.getEntity();
+		DamageCause cause = LastDamage.get(p);
+		Bukkit.broadcastMessage("" + cause);
+		if(cause == DamageCause.ENTITY_ATTACK && Damager.get(p) != p) {
+			Player damager = Damager.get(p);
+			e.setDeathMessage("§7" + p.getName() + " was killed by " + damager.getName() + "!");
 		}
+		if(cause == DamageCause.ENTITY_ATTACK && DamagerEn.get(p) != p) {
+			Entity damager = DamagerEn.get(p);
+			e.setDeathMessage("§7" + p.getName() + " was killed by " + damager.getType() + "!");
+		}
+		if(cause == DamageCause.FALL) {
+			e.setDeathMessage("§7" + p.getName() + " thought he could fly!");
+		}
+		if(cause == DamageCause.FIRE) {
+			e.setDeathMessage("§7" + p.getName() + " was killed by fire!");
+		}
+		if(cause == DamageCause.BLOCK_EXPLOSION) {
+			e.setDeathMessage("§7" + p.getName() + " was killed by an explosion!");
+			
+		}
+		p.spigot().respawn();
+		e.getEntity().setGameMode(GameMode.SPECTATOR);
+		e.getEntity().setHealth(20);
+		e.setKeepInventory(true);
 	}
 	
 	@EventHandler
 	public void PlayerDamage(EntityDamageByEntityEvent e) {
-		if(e.getEntityType() == EntityType.PLAYER) {
+		Bukkit.broadcastMessage("" + e.getCause());
+		if(e.getEntity() instanceof Player) {
 			Player p = (Player) e.getEntity();
-			if(e.getCause() == DamageCause.CONTACT && e.getDamager().getType() == EntityType.PLAYER) {
-				LastDamage.put(p, DamageCause.CONTACT);
+			if(e.getCause() == DamageCause.ENTITY_ATTACK && e.getDamager() instanceof Player) {
+				p.sendMessage("Contact Player");
+				LastDamage.put(p, DamageCause.ENTITY_ATTACK);
 				Damager.put(p, (Player) e.getDamager());
-				DamagerEn.put(p, null);
+				DamagerEn.put(p, p);
 				return;
 			}
-			if(e.getCause() == DamageCause.CONTACT && e.getDamager().getType() != EntityType.PLAYER) {
+			if(e.getCause() == DamageCause.ENTITY_ATTACK && e.getDamager() instanceof Entity) {
+				p.sendMessage("Contact Entity");
 				LastDamage.put(p, DamageCause.CONTACT);
-				Damager.put(p, null);
+				Damager.put(p, p);
 				DamagerEn.put(p, e.getDamager());
 			}
 		}
@@ -76,6 +82,9 @@ public class HgDeath implements Listener {
 			}
 			if(e.getCause() == DamageCause.BLOCK_EXPLOSION) {
 				LastDamage.put(p, DamageCause.BLOCK_EXPLOSION);
+			}
+			if(e.getCause() == DamageCause.FIRE) {
+				LastDamage.put(p, DamageCause.FIRE);
 			}
 		}
 		

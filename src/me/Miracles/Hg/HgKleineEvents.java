@@ -12,12 +12,12 @@ public class HgKleineEvents implements Listener{
 	
 	@EventHandler
 	public void BlockBreak(BlockBreakEvent even) {
-		even.setCancelled(true);
+		even.setCancelled(false);
 		
 	}
 	@EventHandler
 	public void BlockPlace(BlockPlaceEvent even) {
-		even.setCancelled(true);
+		even.setCancelled(false);
 	}
 	@EventHandler
 	public void WeatherChange(WeatherChangeEvent even) {
@@ -33,7 +33,7 @@ public class HgKleineEvents implements Listener{
 	
 	@EventHandler
 	public void MoveEvent(PlayerMoveEvent even) {
-		if(HgMain.GameProgress == "Starting") {
+		if(HgMain.CancelMove == true) {
 			if(even.getFrom() != even.getTo()) {
 				even.setCancelled(true);
 			}

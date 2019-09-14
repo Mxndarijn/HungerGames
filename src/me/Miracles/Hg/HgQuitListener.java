@@ -12,7 +12,7 @@ public class HgQuitListener implements Listener {
 			e.setQuitMessage("");
 			return;
 		}
-		HgMain.PlayersInGame--;
+		HgMain.PlayersInGame = HgMain.PlayersInGame -1;
 		e.setQuitMessage("§e" + e.getPlayer().getName() + " left! (" + HgMain.PlayersInGame + "/" + HgMain.GetInt("MaxPlayers") + ")");
 		
 		
